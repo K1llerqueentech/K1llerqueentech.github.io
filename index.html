@@ -3,13 +3,43 @@
 <head>
     <title>Herizon</title>
     <style>
-        body {
-            font-family: 'Arial', sans-serif; /* 设置字体 */
-            background: linear-gradient(to bottom right, #a8e6cf, #dcedc1, #ffd3b6, #ffaaa5); /* 设置一个漂亮的渐变背景色 */
-            color: #333; /* 设置文字颜色 */
-            text-align: center; /* 文字居中 */
-            padding: 50px; /* 在页面边缘和内容之间加一些空间 */
-        }
+/* 基础样式重置，确保布局更可控 */
+html, body {
+    height: 100%; /* 让html和body的高度撑满整个浏览器窗口 */
+    margin: 0; /* 去掉浏览器默认的外边距 */
+    padding: 0; /* 去掉浏览器默认的内边距 */
+    font-family: 'Arial', sans-serif;
+}
+
+/* 主容器样式 */
+body {
+    background: linear-gradient(135deg, #ffafbd, #ffc3a0); /* 一个经典的粉色到橙粉色的渐变 */
+    color: #333;
+    text-align: center;
+    
+    /* 使用Flexbox布局，这是一个非常强大的居中技巧 */
+    display: flex;
+    flex-direction: column;
+    justify-content: center; /* 垂直居中 */
+    align-items: center; /* 水平居中 */
+    min-height: 100vh; /* 确保即使内容很少，也至少占满整个屏幕高度 */
+}
+
+h1 {
+    color: #fff; /* 将标题改为白色，在粉色背景上更醒目 */
+    font-size: 3em;
+    margin-bottom: 20px;
+    text-shadow: 1px 1px 3px rgba(0,0,0,0.3); /* 给文字加一点阴影，增加立体感 */
+}
+
+p {
+    font-size: 1.2em;
+    line-height: 1.6;
+    max-width: 600px;
+    margin: 20px auto;
+    color: #fff; /* 段落文字也改为白色 */
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+}
         h1 {
             color: #ff6b6b; /* 给标题换一个颜色 */
             font-size: 3em; /* 把标题字体调得更大 */
@@ -38,7 +68,7 @@
 </head>
 <body>
     <h1>欢迎来到我们的网站！</h1>
-    <p>Unfold what is yours。</p >
+    <p>Unfold what is yours.</p >
 
     <!-- 这是一个按钮，但我们还没有给它添加功能 -->
     <button class="my-button" onclick="sayHello()">打个招呼</button>
