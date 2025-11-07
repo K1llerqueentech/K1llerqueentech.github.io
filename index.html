@@ -1,129 +1,121 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Herizon</title>
+    <title>我的小天地</title>
     <style>
-/* 基础样式重置，确保布局更可控 */
-html, body {
-    height: 100%; /* 让html和body的高度撑满整个浏览器窗口 */
-    margin: 0; /* 去掉浏览器默认的外边距 */
-    padding: 0; /* 去掉浏览器默认的内边距 */
-    font-family: Arial, sans-serif;
-}
+        /* 基础样式重置 */
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
 
-/* 主容器样式 */
-body {
-    background: linear-gradient(135deg, #ffafbd, #ffc3a0); /* 一个经典的粉色到橙粉色的渐变 */
-    color: #333;
-    text-align: center;
-    
-    /* 使用Flexbox布局，这是一个非常强大的居中技巧 */
-    display: flex;
-    flex-direction: column;
-    justify-content: center; /* 垂直居中 */
-    align-items: center; /* 水平居中 */
-    min-height: 100vh; /* 确保即使内容很少，也至少占满整个屏幕高度 */
-}
+        /* 主界面样式：完整的粉色渐变背景 */
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #ffafbd, #ffc3a0); /* 粉色系渐变 */
+            color: #333;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
 
-h1 {
-    color: #fff; /* 将标题改为白色，在粉色背景上更醒目 */
-    font-size: 3em;
-    margin-bottom: 20px;
-    text-shadow: 1px 1px 3px rgba(0,0,0,0.3); /* 给文字加一点阴影，增加立体感 */
-}
-
-p {
-    font-size: 1.2em;
-    line-height: 1.6;
-    max-width: 600px;
-    margin: 20px auto;
-    color: #fff; /* 段落文字也改为白色 */
-    text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
-}
+        /* 标题样式 */
         h1 {
-            color: #ff6b6b; /* 给标题换一个颜色 */
-            font-size: 3em; /* 把标题字体调得更大 */
-            margin-bottom: 20px; /* 在标题下面加一些空间 */
+            color: #fff; /* 白色标题 */
+            font-size: 3em;
+            margin-bottom: 20px;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.3);
         }
+
+        /* 段落样式 */
         p {
-            font-size: 1.2em; /* 把段落字体调大一点 */
-            line-height: 1.6; /* 调整行与行之间的距离，让阅读更舒服 */
-            max-width: 600px; /* 限制段落的宽度，太宽了会不好读 */
-            margin: 20px auto; /* 让段落居中，并在上下加一些空间 */
-            color: #c67915;
-            font-family: Arial, sans-serif; 
+            font-size: 1.2em;
+            line-height: 1.6;
+            max-width: 600px;
+            margin: 20px auto;
+            color: #fff; /* 白色段落文字 */
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
         }
+
+        /* 主按钮样式 */
         .my-button {
-            background-color: #ff6b6b; /* 按钮背景色 */
-            color: white; /* 按钮文字颜色 */
-            padding: 15px 30px; /* 按钮内部的空间 */
-            font-size: 1.1em; /* 按钮文字大小 */
-            border: none; /* 去掉默认的边框 */
-            border-radius: 10px; /* 给按钮加上圆角 */
-            cursor: pointer; /* 当鼠标悬停在按钮上时，变成小手图标 */
-            margin-top: 30px; /* 在按钮上面加一些空间 */
+            background-color: #ff6b6b;
+            color: white;
+            padding: 15px 30px;
+            font-size: 1.1em;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            margin-top: 30px;
         }
+
         .my-button:hover {
-            background-color: #ff5252; /* 当鼠标悬停时，按钮颜色变深一点 */
+            background-color: #ff5252;
         }
-        /* 六个按钮的容器样式 */
-.button-container {
-    display: flex; /* 使用弹性布局 */
-    flex-wrap: wrap; /* 如果一行放不下，允许换行 */
-    justify-content: center; /* 水平居中 */
-    gap: 15px; /* 设置按钮之间的间距 */
-    margin-top: 40px;
-    max-width: 600px;
-}
 
-/* 六个按钮的通用样式 */
-.fun-btn {
-    background-color: rgba(255, 255, 255, 0.9); /* 半透明白色背景 */
-    color: #ff6b6b; /* 粉色文字 */
-    padding: 12px 20px;
-    font-size: 1em;
-    border: 2px solid #fff; /* 白色边框 */
-    border-radius: 25px; /* 椭圆形的圆角 */
-    cursor: pointer;
-    transition: all 0.3s ease; /* 给所有变化添加平滑的动画效果 */
-    flex-grow: 1; /* 让按钮可以弹性伸缩 */
-    min-width: 140px; /* 设置一个最小宽度 */
-}
+        /* 六个功能按钮的容器 */
+        .button-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 40px;
+            max-width: 600px;
+        }
 
-.fun-btn:hover {
-    background-color: #fff; /* 鼠标悬停时背景变为纯白 */
-    color: #7c191e; /* 文字颜色变深 */
-    transform: translateY(-5px); /* 按钮向上微微抬起 */
-    box-shadow: 0 5px 15px rgba(0,0,0,0.1); /* 添加阴影，产生悬浮效果 */
-}
+        /* 六个功能按钮的样式 */
+        .fun-btn {
+            background-color: rgba(255, 255, 255, 0.9); /* 半透明白色 */
+            color: #ff6b6b; /* 粉色文字 */
+            padding: 12px 20px;
+            font-size: 1em;
+            border: 2px solid #fff;
+            border-radius: 25px; /* 椭圆形按钮 */
+            cursor: pointer;
+            transition: all 0.3s ease;
+            flex-grow: 1;
+            min-width: 140px;
+        }
+
+        .fun-btn:hover {
+            background-color: #fff; /* 悬停时变为纯白 */
+            color: #ff5252;
+            transform: translateY(-3px); /* 微微抬起效果 */
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1); /* 悬浮阴影 */
+        }
     </style>
 </head>
 <body>
     <h1>欢迎来到我们的网站！</h1>
-    <p>Unfold what is yours.</p >
+    <p>Let's unfold what's yours.</p >
 
-    <!-- 这是一个按钮，但我们还没有给它添加功能 -->
-    <button class="my-button" onclick="sayHello()">打个招呼</button>
+    <!-- 主按钮 -->
+    <button class="my-button" onclick="sayHello()">打个招呼❤</button>
+
+    <!-- 六个功能按钮 -->
+    <div class="button-container">
+        <button class="fun-btn" onclick="comingSoon('秘密功能 1')">1</button>
+        <button class="fun-btn" onclick="comingSoon('奇妙功能 2')">2</button>
+        <button class="fun-btn" onclick="comingSoon('冒险功能 3')">3</button>
+        <button class="fun-btn" onclick="comingSoon('探索功能 4')">4</button>
+        <button class="fun-btn" onclick="comingSoon('彩蛋功能 5')">5</button>
+        <button class="fun-btn" onclick="comingSoon('终极功能 6')">6</button>
+    </div>
 
     <script>
-        // 从这里开始是JavaScript代码，用来添加功能
+        // 主按钮的功能
         function sayHello() {
-            // 这个函数会在按钮被点击时执行
             alert('看到你了！感谢你的点击！😊');
         }
-        <!-- 六个功能按钮的容器 -->
-<div class="button-container">
-    <button class="fun-btn" onclick="comingSoon('秘密功能 1')">1</button>
-    <button class="fun-btn" onclick="comingSoon('奇妙功能 2')">2</button>
-    <button class="fun-btn" onclick="comingSoon('冒险功能 3')">3</button>
-    <button class="fun-btn" onclick="comingSoon('探索功能 4')">4</button>
-    <button class="fun-btn" onclick="comingSoon('彩蛋功能 5')">5</button>
-    <button class="fun-btn" onclick="comingSoon('终极功能 6')">6</button>
-</div>
-        // 这是一个通用的“即将到来”提示函数
-function comingSoon(featureName) {
-    alert('🚧 ' + featureName + ' 正在全力开发中，敬请期待！');
-}
+
+        // 六个功能按钮的通用提示功能
+        function comingSoon(featureName) {
+            alert('🚧 ' + featureName + ' 作者正在全力开发中，敬请期待！');
+        }
     </script>
 </body>
 </html>
