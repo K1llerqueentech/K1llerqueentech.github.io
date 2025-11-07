@@ -50,6 +50,8 @@ p {
             line-height: 1.6; /* 调整行与行之间的距离，让阅读更舒服 */
             max-width: 600px; /* 限制段落的宽度，太宽了会不好读 */
             margin: 20px auto; /* 让段落居中，并在上下加一些空间 */
+            color: #c67915;
+            font-family: Arial, sans-serif; 
         }
         .my-button {
             background-color: #ff6b6b; /* 按钮背景色 */
@@ -64,6 +66,36 @@ p {
         .my-button:hover {
             background-color: #ff5252; /* 当鼠标悬停时，按钮颜色变深一点 */
         }
+        /* 六个按钮的容器样式 */
+.button-container {
+    display: flex; /* 使用弹性布局 */
+    flex-wrap: wrap; /* 如果一行放不下，允许换行 */
+    justify-content: center; /* 水平居中 */
+    gap: 15px; /* 设置按钮之间的间距 */
+    margin-top: 40px;
+    max-width: 600px;
+}
+
+/* 六个按钮的通用样式 */
+.fun-btn {
+    background-color: rgba(255, 255, 255, 0.9); /* 半透明白色背景 */
+    color: #ff6b6b; /* 粉色文字 */
+    padding: 12px 20px;
+    font-size: 1em;
+    border: 2px solid #fff; /* 白色边框 */
+    border-radius: 25px; /* 椭圆形的圆角 */
+    cursor: pointer;
+    transition: all 0.3s ease; /* 给所有变化添加平滑的动画效果 */
+    flex-grow: 1; /* 让按钮可以弹性伸缩 */
+    min-width: 140px; /* 设置一个最小宽度 */
+}
+
+.fun-btn:hover {
+    background-color: #fff; /* 鼠标悬停时背景变为纯白 */
+    color: #7c191e; /* 文字颜色变深 */
+    transform: translateY(-5px); /* 按钮向上微微抬起 */
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1); /* 添加阴影，产生悬浮效果 */
+}
     </style>
 </head>
 <body>
@@ -79,6 +111,19 @@ p {
             // 这个函数会在按钮被点击时执行
             alert('看到你了！感谢你的点击！😊');
         }
+        <!-- 六个功能按钮的容器 -->
+<div class="button-container">
+    <button class="fun-btn" onclick="comingSoon('秘密功能 1')">1</button>
+    <button class="fun-btn" onclick="comingSoon('奇妙功能 2')">2</button>
+    <button class="fun-btn" onclick="comingSoon('冒险功能 3')">3</button>
+    <button class="fun-btn" onclick="comingSoon('探索功能 4')">4</button>
+    <button class="fun-btn" onclick="comingSoon('彩蛋功能 5')">5</button>
+    <button class="fun-btn" onclick="comingSoon('终极功能 6')">6</button>
+</div>
+        // 这是一个通用的“即将到来”提示函数
+function comingSoon(featureName) {
+    alert('🚧 ' + featureName + ' 正在全力开发中，敬请期待！');
+}
     </script>
 </body>
 </html>
