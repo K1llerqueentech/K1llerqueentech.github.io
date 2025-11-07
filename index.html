@@ -131,30 +131,17 @@
         <button class="fun-btn" onclick="comingSoon('功能 5')">5</button>
         <button class="fun-btn" onclick="comingSoon('功能 6')">6</button>
     </div>
+    
     <!-- 背景音乐 -->
     <audio autoplay loop>
-    <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
+    <source src="https://assets.codepen.io/21542/howler-push.mp3" type="audio/mpeg">
     </audio
-    <script>
-       // 主按钮的功能 - 替换整个sayHello函数
-        function sayHello() {
-       // 先获取动画元素
-        const character = document.getElementById('greeting-character');
-    
-       // 如果有动画元素，执行动画
-        if (character) {
-         character.style.right = '20px';
-         character.style.opacity = '1';
         
-         setTimeout(() => {
-            character.style.right = '-100px';
-            character.style.opacity = '0';
-          }, 3000);
-         }
-    
+    <script>
+        function sayHello() {
     // 最后显示弹窗
-    alert('你好！感谢你的点击！😊');
-}
+        alert('你好！感谢你的点击！😊');
+         }
 
         // 六个功能按钮的通用提示功能
         function comingSoon(featureName) {
