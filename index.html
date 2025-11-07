@@ -125,19 +125,19 @@
     <script>
         // 主按钮的功能
         function sayHello() {
-           alert('你好！感谢你的点击！😊');
+    alert('你好！感谢你的点击！😊');
     
-        const character = document.getElementById('greeting-character');
-        if (character) {
-            character.style.right = '20px';
-            character.style.opacity = '1';
+    const character = document.getElementById('greeting-character');
+    if (character) {
+        character.style.right = '20px';
+        character.style.opacity = '1';
         
-            setTimeout(() => {
-                character.style.right = '-100px';
-                character.style.opacity = '0';
-            }, 3000);
-         }
-         }
+        setTimeout(() => {
+            character.style.right = '-100px';
+            character.style.opacity = '0';
+        }, 3000);
+    }
+}
 
         // 六个功能按钮的通用提示功能
         function comingSoon(featureName) {
