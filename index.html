@@ -108,6 +108,10 @@
 <body>
     <h1>欢迎来到我们的网站！</h1>
     <p>Let's unfold what's yours.</p >
+    <!-- 打招呼动画人物 - 确保有这段 -->
+    <div id="greeting-character" class="character">
+    👋
+    </div>
 
     <!-- 主按钮 -->
     <button class="my-button" onclick="sayHello()">打个招呼 ❤</button>
@@ -123,20 +127,24 @@
     </div>
 
     <script>
-        // 主按钮的功能
+       // 主按钮的功能 - 替换整个sayHello函数
         function sayHello() {
-    alert('你好！感谢你的点击！😊');
+       // 先获取动画元素
+        const character = document.getElementById('greeting-character');
     
-    const character = document.getElementById('greeting-character');
-    if (character) {
-        character.style.right = '20px';
-        character.style.opacity = '1';
+       // 如果有动画元素，执行动画
+        if (character) {
+         character.style.right = '20px';
+         character.style.opacity = '1';
         
-        setTimeout(() => {
+         setTimeout(() => {
             character.style.right = '-100px';
             character.style.opacity = '0';
-        }, 3000);
-    }
+          }, 3000);
+         }
+    
+    // 最后显示弹窗
+    alert('你好！感谢你的点击！😊');
 }
 
         // 六个功能按钮的通用提示功能
