@@ -1,10 +1,56 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Herizon</title>
+    <title>我的小天地</title>
+    <style>
+        /* 从这里开始是CSS代码，用来美化页面 */
+        body {
+            font-family: 'Arial', sans-serif; /* 设置字体 */
+            background: linear-gradient(to bottom right, #a8e6cf, #dcedc1, #ffd3b6, #ffaaa5); /* 设置一个漂亮的渐变背景色 */
+            color: #333; /* 设置文字颜色 */
+            text-align: center; /* 文字居中 */
+            padding: 50px; /* 在页面边缘和内容之间加一些空间 */
+        }
+        h1 {
+            color: #ff6b6b; /* 给标题换一个颜色 */
+            font-size: 3em; /* 把标题字体调得更大 */
+            margin-bottom: 20px; /* 在标题下面加一些空间 */
+        }
+        p {
+            font-size: 1.2em; /* 把段落字体调大一点 */
+            line-height: 1.6; /* 调整行与行之间的距离，让阅读更舒服 */
+            max-width: 600px; /* 限制段落的宽度，太宽了会不好读 */
+            margin: 20px auto; /* 让段落居中，并在上下加一些空间 */
+        }
+        .my-button {
+            background-color: #ff6b6b; /* 按钮背景色 */
+            color: white; /* 按钮文字颜色 */
+            padding: 15px 30px; /* 按钮内部的空间 */
+            font-size: 1.1em; /* 按钮文字大小 */
+            border: none; /* 去掉默认的边框 */
+            border-radius: 10px; /* 给按钮加上圆角 */
+            cursor: pointer; /* 当鼠标悬停在按钮上时，变成小手图标 */
+            margin-top: 30px; /* 在按钮上面加一些空间 */
+        }
+        .my-button:hover {
+            background-color: #ff5252; /* 当鼠标悬停时，按钮颜色变深一点 */
+        }
+    </style>
 </head>
 <body>
-    <h1>Hi!</h1>
-    <p>欢迎来到我们的网站！</p >
+    <h1>欢迎来到我的小站！</h1>
+    <p>你好，世界！这是我用 GitHub 亲手搭建的网站。我从零开始，学会了创建仓库、编写代码，并把它发布到了互联网上。</p >
+    <p>现在，它变得漂亮多了！</p >
+
+    <!-- 这是一个按钮，但我们还没有给它添加功能 -->
+    <button class="my-button" onclick="sayHello()">点我打个招呼</button>
+
+    <script>
+        // 从这里开始是JavaScript代码，用来添加功能
+        function sayHello() {
+            // 这个函数会在按钮被点击时执行
+            alert('你好！感谢你的点击！😊');
+        }
+    </script>
 </body>
 </html>
