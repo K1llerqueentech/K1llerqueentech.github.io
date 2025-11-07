@@ -80,9 +80,15 @@
             transition: all 0.3s ease;
             flex-grow: 1;
             min-width: 140px;
-            outline: none；
-            text-shadow: none !important;
-        }
+            outline: none !important;   
+         /* 标准清除 */
+            outline: none !important;
+            -ms-outline: none !important;        /* 针对旧版 Edge */
+            border: 1px solid transparent !important;  /* 确保没有边框 */
+            -webkit-appearance: none !important;
+            -moz-appearance: none !important;
+            appearance: none !important;
+         }
 
         .fun-btn:hover {
             background-color: #fff;
