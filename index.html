@@ -531,40 +531,49 @@ let supabase;
     
     let message = '=== 现有回复 ===\n\n';
     
-    if (replies && replies.length > 0) {
-        replies.forEach((reply, index) => {
-            const prefix = reply.parent_id ? '  └─ ' : '';
-            const contentPreview = reply.content.length > 20 ? 
-                reply.content.substring(0, 20) + '...' : reply.content;
-            message += `${prefix}${reply.author}：${contentPreview}\n\n`;
+    // 先显示回复主帖子的回复
+    const mainReplies = replies ? replies.filter(reply => !reply.parent_id) : [];
+    const nestedReplies = replies ? replies.filter(reply => reply.parent_id) : [];
+    
+    if (mainReplies.length > 0) {
+        message += '【回复主帖子】\n';
+        mainReplies.forEach(reply => {
+            message += `  ${reply.author}：${reply.content}\n\n`;
         });
-    } else {
+    }
+    
+    // 显示嵌套回复
+    if (nestedReplies.length > 0) {
+        message += '【回复其他人的回复】\n';
+        nestedReplies.forEach(reply => {
+            // 找到被回复的用户
+            const targetReply = replies.find(r => r.id === reply.parent_id);
+            const targetUser = targetReply ? targetReply.author : '未知用户';
+            message += `  ${reply.author} → ${targetUser}：${reply.content}\n\n`;
+        });
+    }
+    
+    if (replies.length === 0) {
         message += '暂无回复\n\n';
     }
     
     message += '=== 添加回复 ===\n\n';
-    message += '输入要回复的用户名（直接回车回复主帖子）\n';
-    message += '例如：张三';
+    message += '输入要回复的用户名（直接回车回复主帖子）';
     
-    // 用户输入用户名
     const target = prompt(message);
-    
     const author = prompt('请输入你的昵称：');
     if (!author) return;
     
     const content = prompt('请输入回复内容：');
     if (!content) return;
     
-    // 确定 parent_id - 修复逻辑！
     let parent_id = null;
     if (target && target.trim() !== '') {
-        // 如果输入了用户名，就找对应的回复
         const targetReplies = replies.filter(reply => reply.author === target.trim());
         if (targetReplies.length > 0) {
             parent_id = targetReplies[0].id;
         }
     }
-    // 如果target是空（直接回车），parent_id保持null，就是回复主帖子
     
     const { error: insertError } = await supabase
         .from('replies')
