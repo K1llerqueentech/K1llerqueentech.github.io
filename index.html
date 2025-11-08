@@ -463,25 +463,31 @@ let supabase;
                 }
 
                 postsContainer.innerHTML = posts.map(post => `
-                    <div class="post-item">
-                        <div class="post-header">
-                            <span class="post-author">${post.author}</span>
-                            <span class="post-time">${new Date(post.created_at).toLocaleString('zh-CN')}</span>
-                        </div>
-                        <div class="post-content">${post.content}</div>
-                        ${post.tags && post.tags.length > 0 ? 
-                            `<div class="post-tags">标签: ${post.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}</div>` : ''}
-                        <div class="post-actions">
-                            <button class="post-action" onclick="likePost(${post.id})">
-                                <span>👍</span> <span class="like-count">${post.likes}</span>
-                            </button>
-                            <button class="post-action" onclick="replyToPost(${post.id})">
-                                <span>💬</span> 回复
-                            </button>
-                        </div>
-                    </div>
-                `).join('');
-
+    <div class="post-item">
+        <div class="post-header">
+            <span class="post-author">${post.author}</span>
+            <span class="post-time">${new Date(post.created_at).toLocaleString('zh-CN')}</span>
+        </div>
+        <div class="post-content">${post.content}</div>
+        ${post.tags && post.tags.length > 0 ? 
+            `<div class="post-tags">标签: ${post.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}</div>` : ''}
+        
+        <div class="post-actions">
+            <div style="display: flex; gap: 15px;">
+                <button class="post-action" onclick="likePost(${post.id})">
+                    <span>👍</span> <span class="like-count">${post.likes}</span>
+                </button>
+                <button class="post-action" onclick="replyToPost(${post.id})">
+                    <span>💬</span> 查看/回复
+                </button>
+            </div>
+            <button class="post-action" onclick="adminDeletePost(${post.id})" style="background: #e53e3e; color: white;">
+                <span>🗑️</span> <span>管理员删除</span>
+            </button>
+        </div>
+    </div>
+`).join('');
+                
             } catch (error) {
                 console.error('加载帖子错误:', error);
                 postsContainer.innerHTML = '<p style="text-align: center; color: #e53e3e;">加载帖子失败，请查看控制台。</p>';
@@ -534,7 +540,26 @@ let supabase;
         alert('点赞失败！');
     }
 }
-           
+        //管理员删除
+        async function adminDeletePost(postId) {
+    const password = prompt('请输入管理员密码：');
+    if (password !== 'admin123') {  // 你的密码
+        alert('密码错误！');
+        return;
+    }
+    
+    if (!confirm('确定要删除这个帖子吗？')) return;
+    
+    try {
+        await supabase.from('replies').delete().eq('post_id', postId);
+        await supabase.from('posts').delete().eq('id', postId);
+        alert('删除成功！');
+        await loadPosts(currentSortType);
+    } catch (error) {
+        alert('删除失败！');
+    }
+}
+        
         async function replyToPost(postId) {
     try {
         // 获取现有回复
