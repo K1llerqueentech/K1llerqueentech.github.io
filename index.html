@@ -529,41 +529,111 @@ let supabase;
         }
 
         // ==================== 搜索功能 ====================
-        document.getElementById('global-search').addEventListener('input', async function(e) {
-            const searchTerm = e.target.value.trim();
-            
-            if (searchTerm.length < 2) {
-                if (currentForumType) await loadPosts(currentSortType);
-                return;
-            }
 
-            try {
-                const { data: posts, error } = await supabase
-                    .from('posts')
-                    .select('*')
-                    .or(`content.ilike.%${searchTerm}%,author.ilike.%${searchTerm}%`)
-                    .order('created_at', { ascending: false });
+        // 监听输入框的输入事件（实时搜索）
+document.getElementById('global-search').addEventListener('input', debounce(async function(e) {
+    await performSearch(e.target.value.trim());
+}, 300));
 
-                if (error) throw error;
+// 监听输入框的回车键
+document.getElementById('global-search').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        performSearch(e.target.value.trim());
+    }
+});
 
-                const postsContainer = document.getElementById('posts-container');
-                if (posts && posts.length > 0) {
-                    postsContainer.innerHTML = posts.map(post => `
-                        <div class="post-item">
-                            <div class="post-header">
-                                <span class="post-author">${post.author}</span>
-                                <span class="post-time">${new Date(post.created_at).toLocaleString('zh-CN')}</span>
-                            </div>
-                            <div class="post-content">${post.content}</div>
-                        </div>
-                    `).join('');
-                } else {
-                    postsContainer.innerHTML = '<p style="text-align: center; color: #718096;">没有找到相关帖子。</p>';
-                }
-            } catch (error) {
-                console.error('搜索错误:', error);
-            }
-        });
+// 防抖函数，避免频繁搜索
+function debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
+}
+
+// 执行搜索的核心函数
+async function performSearch(searchTerm) {
+    if (!searchTerm) {
+        // 如果搜索词为空，恢复显示当前论坛的帖子
+        if (currentForumType) {
+            await loadPosts(currentSortType);
+        }
+        return;
+    }
+    
+    try {
+        const { data: posts, error } = await supabase
+            .from('posts')
+            .select('*')
+            .or(`content.ilike.%${searchTerm}%,author.ilike.%${searchTerm}%,tags.cs.{${searchTerm}}`)
+            .order('created_at', { ascending: false });
+
+        if (error) throw error;
+
+        const postsContainer = document.getElementById('posts-container');
+        if (!postsContainer) {
+            // 如果不在论坛界面，先打开自由论坛
+            await openForum('free');
+        }
+        
+        const finalPostsContainer = document.getElementById('posts-container');
+        
+        if (posts && posts.length > 0) {
+            finalPostsContainer.innerHTML = `
+                <div style="margin-bottom: 15px; color: #667eea; font-weight: 600;">
+                    搜索"${searchTerm}"的结果 (${posts.length}条)
+                </div>
+                ${posts.map(post => `
+                <div class="post-item">
+                    <div class="post-header">
+                        <span class="post-author">${post.author}</span>
+                        <span class="post-time">${new Date(post.created_at).toLocaleString('zh-CN')}</span>
+                        <span class="post-category" style="background: #e2e8f0; padding: 2px 8px; border-radius: 4px; font-size: 0.8em;">
+                            ${getCategoryName(post.type)}
+                        </span>
+                    </div>
+                    <div class="post-content">${highlightSearchTerm(post.content, searchTerm)}</div>
+                    ${post.tags && post.tags.length > 0 ? 
+                        `<div class="post-tags">标签: ${post.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}</div>` : ''}
+                    <div class="post-actions">
+                        <button class="post-action" onclick="likePost(${post.id})">
+                            <span>👍</span> <span class="like-count">${post.likes}</span>
+                        </button>
+                    </div>
+                </div>
+                `).join('')}
+            `;
+        } else {
+            finalPostsContainer.innerHTML = '<p style="text-align: center; color: #718096;">没有找到相关帖子。</p>';
+        }
+    } catch (error) {
+        console.error('搜索错误:', error);
+        const postsContainer = document.getElementById('posts-container');
+        postsContainer.innerHTML = '<p style="text-align: center; color: #e53e3e;">搜索失败，请稍后重试。</p>';
+    }
+}
+
+// 高亮搜索关键词
+function highlightSearchTerm(content, searchTerm) {
+    if (!searchTerm) return content;
+    const regex = new RegExp(`(${searchTerm})`, 'gi');
+    return content.replace(regex, '<mark style="background: #ffeb3b; padding: 1px 2px;">$1</mark>');
+}
+
+// 获取分类名称
+function getCategoryName(type) {
+    const categories = {
+        'free': '自由论坛',
+        'academic': '学术前瞻', 
+        'legal': '法律权益',
+        'feedback': '开发建议'
+    };
+    return categories[type] || '未知';
+}
 
         // 初始化
         console.log('Supabase 社区网站已加载');
