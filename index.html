@@ -520,13 +520,33 @@ let supabase;
     }
 }
            
-        function replyToPost(postId) {
-            const replyContent = prompt('请输入你的回复：');
-            if (replyContent) {
-                alert('演示模式：回复功能已触发！\n在完整版中，回复会被保存到数据库。');
-                // 实际实现时需要创建 replies 表并关联 postId
-            }
-        }
+        async function replyToPost(postId) {
+    const author = prompt('请输入你的昵称：');
+    if (!author) return;
+    
+    const content = prompt('请输入回复内容：');
+    if (!content) return;
+    
+    try {
+        const { data, error } = await supabase
+            .from('replies')
+            .insert([
+                {
+                    post_id: postId,
+                    author: author,
+                    content: content
+                }
+            ]);
+
+        if (error) throw error;
+        
+        alert('回复成功！');
+        
+    } catch (error) {
+        console.error('回复错误:', error);
+        alert('回复失败！');
+    }
+}
 
         // ==================== 搜索功能 ====================
 
