@@ -311,13 +311,21 @@
     </div>
 
     <script>
-        // ==================== Supabase 初始化 ====================
-        // 重要：你需要替换成你自己的 Supabase 项目凭证
-        const SUPABASE_URL = 'https://sojzrexhxicfugyuvsaa.supabase.co'; // 替换为你的 Supabase URL
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNvanpyZXhoeGljZnVneXV2c2FhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI1NzU0MTksImV4cCI6MjA3ODE1MTQxOX0.ZTm01JLRoakcQ3AnTOTQDUR5-Fu6l5TKtrlRSx6MUAE'; // 替换为你的 Supabase Anon Key
-        
-        // 创建 Supabase 客户端
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+   if (typeof supabase === 'undefined') {
+        console.log('手动加载 Supabase...');
+        await new Promise((resolve) => {
+            const script = document.createElement('script');
+            script.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js';
+            script.onload = resolve;
+            document.head.appendChild(script);
+           });
+    }
+
+    // 现在再初始化 Supabase
+    const SUPABASE_URL = 'https://sojzrexhxicfugyuvsaa.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNvanpyZXhoeGljZnVneXV2c2FhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI1NzU0MTksImV4cCI6MjA3ODE1MTQxOX0.ZTm01JLRoakcQ3AnTOTQDUR5-Fu6l5TKtrlRSx6MUAE';
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    console.log('Supabase 状态:', supabase ? '成功' : '失败');
 
         // ==================== 全局状态 ====================
         let currentForumType = '';
