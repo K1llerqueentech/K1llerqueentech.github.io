@@ -529,76 +529,94 @@ let supabase;
             .eq('post_id', postId)
             .order('created_at', { ascending: true });
 
-        if (fetchError) throw fetchError;
+        if (fetchError) {
+            alert('加载回复失败：' + fetchError.message);
+            return;
+        }
 
-        // 2. 显示现有回复
-        let message = '=== 现有回复 ===\n\n';
+        // 2. 构建回复列表显示（手机友好）
+        let message = '📝 现有回复：\n\n';
         
         if (!replies || replies.length === 0) {
             message += '暂无回复\n\n';
         } else {
-            // 显示所有回复，用缩进表示层级
-            replies.forEach(reply => {
-                if (!reply.parent_id) {
-                    // 回复主帖子的
-                    message += `💬 ${reply.author}：${reply.content}\n`;
-                } else {
-                    // 嵌套回复
-                    const targetReply = replies.find(r => r.id === reply.parent_id);
-                    const targetUser = targetReply ? targetReply.author : '某用户';
-                    message += `  └─ ${reply.author} 回复 ${targetUser}：${reply.content}\n`;
+            replies.forEach((reply, index) => {
+                message += `${index + 1}. ${reply.author}：${reply.content}\n`;
+                if (reply.content.length > 20) {
+                    message += '\n';
                 }
-                message += '\n';
             });
         }
 
-        message += '=== 添加新回复 ===\n\n';
-        message += '请输入要回复的用户名：\n';
-        message += '- 直接回车：回复主帖子\n';
-        message += '- 输入用户名：回复该用户的发言\n';
+        message += '\n——————————————\n';
+        message += '请选择：\n';
+        message += '① 直接回复主帖子\n';
+        message += '② 回复其他用户\n';
+        message += '③ 仅查看回复';
+
+        // 3. 手机友好的选择方式
+        const choice = prompt(message + '\n\n请输入 1, 2 或 3：');
         
-        // 3. 选择回复对象
-        const targetUser = prompt(message);
-        
-        // 4. 获取回复内容
-        const author = prompt('请输入你的昵称：');
+        if (choice === null) return; // 用户取消
+
+        if (choice === '3') {
+            // 仅查看回复
+            if (replies && replies.length > 0) {
+                let viewMessage = '📋 所有回复：\n\n';
+                replies.forEach(reply => {
+                    viewMessage += `👤 ${reply.author}\n💬 ${reply.content}\n⏰ ${new Date(reply.created_at).toLocaleString()}\n\n`;
+                });
+                alert(viewMessage);
+            }
+            return;
+        }
+
+        // 4. 获取回复信息
+        const author = prompt('👤 请输入你的昵称：');
         if (!author) return;
         
-        const content = prompt('请输入回复内容：');
+        const content = prompt('💬 请输入回复内容：');
         if (!content) return;
 
-        // 5. 确定parent_id
         let parent_id = null;
-        if (targetUser && targetUser.trim() !== '') {
-            // 找到要回复的那条回复
-            const targetReply = replies.find(reply => 
-                reply.author === targetUser.trim()
-            );
-            if (targetReply) {
-                parent_id = targetReply.id;
-            } else {
-                alert(`未找到用户"${targetUser}"的回复，将回复主帖子`);
+
+        // 5. 处理回复其他用户
+        if (choice === '2' && replies && replies.length > 0) {
+            let userList = '👥 可回复的用户：\n\n';
+            replies.forEach((reply, index) => {
+                userList += `${index + 1}. ${reply.author}\n`;
+            });
+            
+            const userChoice = prompt(userList + '\n请输入用户编号：');
+            if (userChoice) {
+                const index = parseInt(userChoice) - 1;
+                if (index >= 0 && index < replies.length) {
+                    parent_id = replies[index].id;
+                }
             }
         }
 
         // 6. 保存回复
-        const { data: newReply, error: insertError } = await supabase
+        const { error: insertError } = await supabase
             .from('replies')
             .insert([{
                 post_id: postId,
                 parent_id: parent_id,
                 author: author,
                 content: content
-            }])
-            .select();
+            }]);
 
-        if (insertError) throw insertError;
+        if (insertError) {
+            alert('❌ 回复失败：' + insertError.message);
+            return;
+        }
 
-        alert('✅ 回复成功！');
+        // 7. 成功提示
+        alert('✅ 回复成功！\n\n作者：' + author + '\n内容：' + content);
 
     } catch (error) {
         console.error('回复错误:', error);
-        alert('❌ 回复失败：' + error.message);
+        alert('❌ 发生错误，请重试');
     }
 }
         // ==================== 搜索功能 ====================
