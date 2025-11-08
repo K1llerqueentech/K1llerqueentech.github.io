@@ -1,152 +1,552 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-CN">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Herizon</title>
+    
+    <!-- 引入 Supabase 客户端库 -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
     <style>
-        /* 基础样式重置 */
+        /* === [之前所有的CSS样式保持不变] === */
+        * { box-sizing: border-box; }
         html, body {
             height: 100%;
             margin: 0;
             padding: 0;
+            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
         }
 
-        /* 主界面样式：完整的粉色渐变背景 */
-        body {
-            font-family: 'Arial', sans-serif;
-            background: linear-gradient(135deg, #e17b9a, #ffc3a0); /* 粉色系渐变 */
-            color: #333;
-            text-align: center;
+        .main-container {
             display: flex;
             flex-direction: column;
-            justify-content: center;
             align-items: center;
             min-height: 100vh;
+            padding: 40px 20px;
         }
 
-        /* 标题样式 */
-        h1 {
-            color: #f5f5f5; /* 白色标题 */
-            font-size: 3em;
-            margin-bottom: 20px;
-            text-shadow: 1px 1px 3px rgba(0,0,0,0.3);
-        }
-
-        /* 段落样式 */
-        p {
-            font-size: 1.2em;
-            line-height: 1.6;
-            max-width: 600px;
-            margin: 20px auto;
-            color: #f5f5f5; /* 段落文字 */
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
-        }
-
-        /* 主按钮样式 */
-        .my-button {
-            background-color: #e17b9a;
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
             color: white;
-            padding: 15px 30px;
-            font-size: 1.1em;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            margin-top: 30px;
+        }
+        .header h1 {
+            font-size: 2.8em;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
         }
 
-        .my-button:hover {
-            background-color: #ff5252;
-            transform: translateY(-2px); /* 微微抬起效果 */
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1); /* 悬浮阴影 */
+        .search-box {
+            width: 100%;
+            max-width: 500px;
+            margin: 20px 0 40px 0;
         }
-
-        /* 六个功能按钮的容器 */
-        .button-container {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 15px;
-            margin-top: 40px;
-            max-width: 600px;
-        }
-
-        /* 六个功能按钮的样式 */
-        .fun-btn {
-            background-color: #ffecf2;
-            color: #ff6b6b; /* 粉色文字 */
-            padding: 12px 20px;
+        .search-box input {
+            width: 100%;
+            padding: 15px 20px;
             font-size: 1em;
-            border-radius: 25px; /* 椭圆形按钮 */
+            border: none;
+            border-radius: 50px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            outline: none;
+            transition: all 0.3s ease;
+        }
+        .search-box input:focus {
+            box-shadow: 0 4px 25px rgba(0,0,0,0.2);
+            transform: translateY(-2px);
+        }
+
+        .main-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            width: 100%;
+            max-width: 900px;
+            margin-bottom: 40px;
+        }
+        .main-btn {
+            background: rgba(255, 255, 255, 0.95);
+            border: none;
+            border-radius: 15px;
+            padding: 25px 20px;
+            font-size: 1.3em;
+            font-weight: 600;
+            color: #5a67d8;
             cursor: pointer;
             transition: all 0.3s ease;
-            flex-grow: 1;
-            min-width: 140px;
-            outline: none !important;   
-         /* 标准清除 */
-            outline: none !important;
-            -ms-outline: none !important;        /* 针对旧版 Edge */
-            border: 1px solid transparent !important;  /* 确保没有边框 */
-            -webkit-appearance: none !important;
-            -moz-appearance: none !important;
-            appearance: none !important;
-         }
-
-        .fun-btn:hover {
-            background-color: #fff;
-            color: #ff6b6b !important;
-            transform: translateY(-2px); /* 微微抬起效果 */
-            box-shadow: 0px 2px 4px rgba(0,0,0,0.1); /* 悬浮阴影 */
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
         }
-        
-        .fun-btn:active {  /* 点击时的状态 */
-            transform: translateY(1px); /* 向下移动，像被按下 */
-            box-shadow: 
-            inset 0 2px 4px rgba(0, 0, 0, 0.2), /* 内阴影，顶部变暗 */
-            0 1px 2px rgba(0, 0, 0, 0.1);       /* 外阴影变小 */
-         }
-        
-        #greeting-character {
-            position: fixed;
-            right: -100px;
-            top: 50%;
-            font-size: 60px;
-            opacity: 0;
-          }
+        .main-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+            background: white;
+        }
+        .main-btn .icon {
+            font-size: 1.8em;
+        }
+
+        #forum-interface {
+            width: 100%;
+            max-width: 800px;
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            display: none;
+        }
+        .forum-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            border-bottom: 2px solid #f1f1f1;
+            padding-bottom: 15px;
+        }
+        .forum-header h2 {
+            color: #4a5568;
+            margin: 0;
+        }
+        .close-forum {
+            background: #e53e3e;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 8px 15px;
+            cursor: pointer;
+            font-size: 0.9em;
+        }
+        .close-forum:hover {
+            background: #c53030;
+        }
+
+        .post-form {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group input, .form-group textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 1em;
+            resize: vertical;
+        }
+        .form-group textarea {
+            min-height: 80px;
+        }
+        .submit-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 25px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: background 0.3s;
+        }
+        .submit-btn:hover {
+            background: #5a67d8;
+        }
+
+        .posts-container {
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        .post-item {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 18px;
+            margin-bottom: 15px;
+            transition: all 0.2s;
+        }
+        .post-item:hover {
+            border-color: #667eea;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.1);
+        }
+        .post-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .post-author {
+            font-weight: bold;
+            color: #4a5568;
+        }
+        .post-time {
+            font-size: 0.85em;
+            color: #718096;
+        }
+        .post-content {
+            color: #2d3748;
+            line-height: 1.5;
+            margin-bottom: 12px;
+        }
+        .post-actions {
+            display: flex;
+            gap: 15px;
+        }
+        .post-action {
+            background: none;
+            border: none;
+            color: #718096;
+            cursor: pointer;
+            font-size: 0.9em;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: color 0.2s;
+        }
+        .post-action:hover {
+            color: #667eea;
+        }
+
+        /* 论坛标签页 */
+        .forum-tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .tab-btn {
+            background: none;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            color: #718096;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s;
+        }
+        .tab-btn.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+            font-weight: 600;
+        }
+        .tab-btn:hover {
+            color: #4a5568;
+        }
+
+        /* 帖子标签样式 */
+        .post-tags {
+            margin-top: 8px;
+            margin-bottom: 12px;
+        }
+        .tag {
+            display: inline-block;
+            background: #edf2f7;
+            color: #4a5568;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.8em;
+            margin-right: 5px;
+        }
+
+        @media (max-width: 768px) {
+            .main-buttons {
+                grid-template-columns: 1fr;
+            }
+            .header h1 {
+                font-size: 2.2em;
+            }
+        }
     </style>
 </head>
 <body>
-    <h1>欢迎来到我们的网站！</h1>
-    <p>Let's unfold what's yours.</p >
-    <!-- 打招呼动画人物 - 确保有这段 -->
-    <div id="greeting-character" class="character">👋</div>
+    <div class="main-container">
+        <!-- 标题区域 -->
+        <div class="header">
+            <h1>创新社区</h1>
+            <p>探索、交流、共创未来</p>
+        </div>
 
-    <!-- 主按钮 -->
-    <button class="my-button" onclick="sayHello()">打个招呼 ❤</button>
+        <!-- 搜索框 -->
+        <div class="search-box">
+            <input type="text" id="global-search" placeholder="搜索帖子、话题...">
+        </div>
 
-    <!-- 六个功能按钮 -->
-    <div class="button-container">
-        <button class="fun-btn" onclick="comingSoon('功能 1')">1</button>
-        <button class="fun-btn" onclick="comingSoon('功能 2')">2</button>
-        <button class="fun-btn" onclick="comingSoon('功能 3')">3</button>
-        <button class="fun-btn" onclick="comingSoon('功能 4')">4</button>
-        <button class="fun-btn" onclick="comingSoon('功能 5')">5</button>
-        <button class="fun-btn" onclick="comingSoon('功能 6')">6</button>
+        <!-- 四个主功能按钮 -->
+        <div class="main-buttons">
+            <button class="main-btn" onclick="openForum('free')">
+                <span class="icon">💬</span>
+                <span>自由论坛</span>
+                <small>畅所欲言，自由交流</small>
+            </button>
+            <button class="main-btn" onclick="openForum('academic')">
+                <span class="icon">🔬</span>
+                <span>焦点前瞻</span>
+                <small>最新动态与趋势</small>
+            </button>
+            <button class="main-btn" onclick="openForum('legal')">
+                <span class="icon">⚖️</span>
+                <span>法律权益</span>
+                <small>法律知识与权益保障</small>
+            </button>
+            <button class="main-btn" onclick="openForum('feedback')">
+                <span class="icon">💡</span>
+                <span>开发建议</span>
+                <small>为社区发展建言献策</small>
+            </button>
+        </div>
+
+        <!-- 论坛界面 -->
+        <div id="forum-interface">
+            <!-- 内容由JavaScript动态生成 -->
+        </div>
     </div>
-    
-    <!-- 背景音乐 -->
-    <audio autoplay loop>
-    <source src="https://assets.codepen.io/21542/howler-push.mp3" type="audio/mpeg">
-    </audio
-        
-    <script>
-        function sayHello() {
-    // 最后显示弹窗
-        alert('你好！感谢你的点击！😊');
-         }
 
-        // 六个功能按钮的通用提示功能
-        function comingSoon(featureName) {
-            alert('🚧 ' + featureName + ' 作者正在全力开发中，敬请期待！');
+    <script>
+        // ==================== Supabase 初始化 ====================
+        // 重要：你需要替换成你自己的 Supabase 项目凭证
+        const SUPABASE_URL = 'https://sojzrexhxicfugyuvsaa.supabase.co'; // 替换为你的 Supabase URL
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNvanpyZXhoeGljZnVneXV2c2FhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI1NzU0MTksImV4cCI6MjA3ODE1MTQxOX0.ZTm01JLRoakcQ3AnTOTQDUR5-Fu6l5TKtrlRSx6MUAE'; // 替换为你的 Supabase Anon Key
+        
+        // 创建 Supabase 客户端
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // ==================== 全局状态 ====================
+        let currentForumType = '';
+        let currentSortType = 'latest';
+
+        // ==================== 核心功能函数 ====================
+
+        async function openForum(type) {
+            currentForumType = type;
+            const interface = document.getElementById('forum-interface');
+            const titles = {
+                'free': '💬 自由论坛 - 畅所欲言',
+                'academic': '🔬 学术前瞻 - 探索前沿', 
+                'legal': '⚖️ 法律权益 - 知法守法',
+                'feedback': '💡 开发建议 - 共建社区'
+            };
+
+            interface.style.display = 'block';
+            interface.innerHTML = `
+                <div class="forum-header">
+                    <h2>${titles[type]}</h2>
+                    <button class="close-forum" onclick="closeForum()">关闭</button>
+                </div>
+                <div class="post-form">
+                    <div class="form-group">
+                        <input type="text" id="post-author" placeholder="你的昵称 (必填)">
+                    </div>
+                    <div class="form-group">
+                        <textarea id="post-content" placeholder="在此输入你的内容... (必填)"></textarea>
+                    </div>
+                    ${type === 'free' ? '<div class="form-group"><input type="text" id="post-tags" placeholder="添加标签，用逗号分隔 (可选)"></div>' : ''}
+                    <button class="submit-btn" onclick="publishPost()">发布帖子</button>
+                </div>
+                <div class="forum-tabs">
+                    <button class="tab-btn active" onclick="switchTab('latest')">最新</button>
+                    ${type === 'free' ? '<button class="tab-btn" onclick="switchTab(\'hot\')">本周最热</button>' : ''}
+                </div>
+                <div class="posts-container" id="posts-container">
+                    <p style="text-align: center; color: #718096;">加载中...</p>
+                </div>
+            `;
+            
+            interface.scrollIntoView({ behavior: 'smooth' });
+            await loadPosts('latest');
         }
+
+        function closeForum() {
+            document.getElementById('forum-interface').style.display = 'none';
+        }
+
+        async function publishPost() {
+            const author = document.getElementById('post-author').value.trim();
+            const content = document.getElementById('post-content').value.trim();
+            const tagsInput = document.getElementById('post-tags') ? document.getElementById('post-tags').value.trim() : '';
+
+            if (!author || !content) {
+                alert('请填写昵称和内容！');
+                return;
+            }
+
+            try {
+                // 插入数据到 Supabase
+                const { data, error } = await supabase
+                    .from('posts')
+                    .insert([
+                        {
+                            author: author,
+                            content: content,
+                            type: currentForumType,
+                            tags: tagsInput ? tagsInput.split(',').map(tag => tag.trim()) : [],
+                            likes: 0
+                        }
+                    ])
+                    .select();
+
+                if (error) throw error;
+
+                // 清空表单
+                document.getElementById('post-author').value = '';
+                document.getElementById('post-content').value = '';
+                if (document.getElementById('post-tags')) {
+                    document.getElementById('post-tags').value = '';
+                }
+
+                // 重新加载帖子
+                await loadPosts(currentSortType);
+                alert('帖子发布成功！');
+
+            } catch (error) {
+                console.error('发布帖子错误:', error);
+                alert('发布失败，请检查控制台信息。');
+            }
+        }
+
+        async function loadPosts(sortType) {
+            currentSortType = sortType;
+            const postsContainer = document.getElementById('posts-container');
+            
+            try {
+                let query = supabase
+                    .from('posts')
+                    .select('*')
+                    .eq('type', currentForumType);
+
+                // 排序
+                if (sortType === 'latest') {
+                    query = query.order('created_at', { ascending: false });
+                } else if (sortType === 'hot') {
+                    query = query.order('likes', { ascending: false });
+                }
+
+                const { data: posts, error } = await query;
+
+                if (error) throw error;
+
+                if (!posts || posts.length === 0) {
+                    postsContainer.innerHTML = '<p style="text-align: center; color: #718096;">还没有帖子，快来发布第一条吧！</p>';
+                    return;
+                }
+
+                postsContainer.innerHTML = posts.map(post => `
+                    <div class="post-item">
+                        <div class="post-header">
+                            <span class="post-author">${post.author}</span>
+                            <span class="post-time">${new Date(post.created_at).toLocaleString('zh-CN')}</span>
+                        </div>
+                        <div class="post-content">${post.content}</div>
+                        ${post.tags && post.tags.length > 0 ? 
+                            `<div class="post-tags">标签: ${post.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}</div>` : ''}
+                        <div class="post-actions">
+                            <button class="post-action" onclick="likePost(${post.id})">
+                                <span>👍</span> <span class="like-count">${post.likes}</span>
+                            </button>
+                            <button class="post-action" onclick="replyToPost(${post.id})">
+                                <span>💬</span> 回复
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+
+            } catch (error) {
+                console.error('加载帖子错误:', error);
+                postsContainer.innerHTML = '<p style="text-align: center; color: #e53e3e;">加载帖子失败，请查看控制台。</p>';
+            }
+        }
+
+        function switchTab(tabType) {
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            loadPosts(tabType);
+        }
+
+        async function likePost(postId) {
+            try {
+                // 先获取当前点赞数
+                const { data: post, error: fetchError } = await supabase
+                    .from('posts')
+                    .select('likes')
+                    .eq('id', postId)
+                    .single();
+
+                if (fetchError) throw fetchError;
+
+                // 更新点赞数
+                const { error: updateError } = await supabase
+                    .from('posts')
+                    .update({ likes: post.likes + 1 })
+                    .eq('id', postId);
+
+                if (updateError) throw updateError;
+
+                // 重新加载帖子
+                await loadPosts(currentSortType);
+                
+            } catch (error) {
+                console.error('点赞错误:', error);
+                alert('点赞失败！');
+            }
+        }
+
+        function replyToPost(postId) {
+            const replyContent = prompt('请输入你的回复：');
+            if (replyContent) {
+                alert('演示模式：回复功能已触发！\n在完整版中，回复会被保存到数据库。');
+                // 实际实现时需要创建 replies 表并关联 postId
+            }
+        }
+
+        // ==================== 搜索功能 ====================
+        document.getElementById('global-search').addEventListener('input', async function(e) {
+            const searchTerm = e.target.value.trim();
+            
+            if (searchTerm.length < 2) {
+                if (currentForumType) await loadPosts(currentSortType);
+                return;
+            }
+
+            try {
+                const { data: posts, error } = await supabase
+                    .from('posts')
+                    .select('*')
+                    .or(`content.ilike.%${searchTerm}%,author.ilike.%${searchTerm}%`)
+                    .order('created_at', { ascending: false });
+
+                if (error) throw error;
+
+                const postsContainer = document.getElementById('posts-container');
+                if (posts && posts.length > 0) {
+                    postsContainer.innerHTML = posts.map(post => `
+                        <div class="post-item">
+                            <div class="post-header">
+                                <span class="post-author">${post.author}</span>
+                                <span class="post-time">${new Date(post.created_at).toLocaleString('zh-CN')}</span>
+                            </div>
+                            <div class="post-content">${post.content}</div>
+                        </div>
+                    `).join('');
+                } else {
+                    postsContainer.innerHTML = '<p style="text-align: center; color: #718096;">没有找到相关帖子。</p>';
+                }
+            } catch (error) {
+                console.error('搜索错误:', error);
+            }
+        });
+
+        // 初始化
+        console.log('Supabase 社区网站已加载');
     </script>
 </body>
 </html>
