@@ -543,10 +543,10 @@ let supabase;
     }
     
     message += '=== 添加回复 ===\n\n';
-    message += '输入要回复的用户名和内容片段（直接回车回复主帖子）\n';
-    message += '例如：张三 或者 张三你好...';
+    message += '输入要回复的用户名（直接回车回复主帖子）\n';
+    message += '例如：张三';
     
-    // 用户输入用户名+内容片段
+    // 用户输入用户名
     const target = prompt(message);
     
     const author = prompt('请输入你的昵称：');
@@ -555,21 +555,16 @@ let supabase;
     const content = prompt('请输入回复内容：');
     if (!content) return;
     
-    // 确定 parent_id
+    // 确定 parent_id - 修复逻辑！
     let parent_id = null;
-    if (target) {
-        // 简单匹配：先按用户名，如果有多个再按内容片段
-        let targetReplies = replies.filter(reply => reply.author === target);
-        if (targetReplies.length > 1 && target.includes(' ')) {
-            const contentPart = target.split(' ')[1];
-            targetReplies = targetReplies.filter(reply => 
-                reply.content.includes(contentPart)
-            );
-        }
+    if (target && target.trim() !== '') {
+        // 如果输入了用户名，就找对应的回复
+        const targetReplies = replies.filter(reply => reply.author === target.trim());
         if (targetReplies.length > 0) {
             parent_id = targetReplies[0].id;
         }
     }
+    // 如果target是空（直接回车），parent_id保持null，就是回复主帖子
     
     const { error: insertError } = await supabase
         .from('replies')
