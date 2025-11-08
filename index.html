@@ -265,6 +265,21 @@
                 font-size: 2.2em;
             }
         }
+        /* === 手机端回复弹窗样式 === */
+    .replies-popup {
+        width: 95vw !important;
+        max-height: 85vh !important;
+        padding: 15px !important;
+    }
+    
+    .reply-item {
+        padding: 8px 0 !important;
+    }
+    
+    input, textarea {
+        font-size: 16px !important;
+    }
+}
     </style>
 </head>
 <body>
@@ -522,103 +537,107 @@ let supabase;
            
         async function replyToPost(postId) {
     try {
-        // 1. 先获取所有现有回复
-        const { data: replies, error: fetchError } = await supabase
+        // 获取现有回复
+        const { data: replies, error } = await supabase
             .from('replies')
             .select('*')
             .eq('post_id', postId)
             .order('created_at', { ascending: true });
-
-        if (fetchError) {
-            alert('加载回复失败：' + fetchError.message);
-            return;
-        }
-
-        // 2. 构建回复列表显示（手机友好）
-        let message = '📝 现有回复：\n\n';
-        
-        if (!replies || replies.length === 0) {
-            message += '暂无回复\n\n';
-        } else {
-            replies.forEach((reply, index) => {
-                message += `${index + 1}. ${reply.author}：${reply.content}\n`;
-                if (reply.content.length > 20) {
-                    message += '\n';
-                }
-            });
-        }
-
-        message += '\n——————————————\n';
-        message += '请选择：\n';
-        message += '① 直接回复主帖子\n';
-        message += '② 回复其他用户\n';
-        message += '③ 仅查看回复';
-
-        // 3. 手机友好的选择方式
-        const choice = prompt(message + '\n\n请输入 1, 2 或 3：');
-        
-        if (choice === null) return; // 用户取消
-
-        if (choice === '3') {
-            // 仅查看回复
-            if (replies && replies.length > 0) {
-                let viewMessage = '📋 所有回复：\n\n';
-                replies.forEach(reply => {
-                    viewMessage += `👤 ${reply.author}\n💬 ${reply.content}\n⏰ ${new Date(reply.created_at).toLocaleString()}\n\n`;
-                });
-                alert(viewMessage);
-            }
-            return;
-        }
-
-        // 4. 获取回复信息
-        const author = prompt('👤 请输入你的昵称：');
-        if (!author) return;
-        
-        const content = prompt('💬 请输入回复内容：');
-        if (!content) return;
-
-        let parent_id = null;
-
-        // 5. 处理回复其他用户
-        if (choice === '2' && replies && replies.length > 0) {
-            let userList = '👥 可回复的用户：\n\n';
-            replies.forEach((reply, index) => {
-                userList += `${index + 1}. ${reply.author}\n`;
-            });
             
-            const userChoice = prompt(userList + '\n请输入用户编号：');
-            if (userChoice) {
-                const index = parseInt(userChoice) - 1;
-                if (index >= 0 && index < replies.length) {
-                    parent_id = replies[index].id;
-                }
-            }
+        if (error) throw error;
+        
+        // 创建回复显示区域
+        let repliesHTML = '<div class="replies-popup" style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 20px; border-radius: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); z-index: 1000; max-width: 90vw; max-height: 80vh; overflow-y: auto;">';
+        repliesHTML += '<h3 style="margin-top: 0;">💬 回复列表</h3>';
+        
+        if (replies && replies.length > 0) {
+            replies.forEach((reply, index) => {
+                repliesHTML += `
+                    <div class="reply-item" style="border-bottom: 1px solid #eee; padding: 10px 0;">
+                        <div style="font-weight: bold; color: #667eea;">${reply.author}</div>
+                        <div style="margin: 5px 0;">${reply.content}</div>
+                        <div style="font-size: 12px; color: #999;">${new Date(reply.created_at).toLocaleString('zh-CN')}</div>
+                    </div>
+                `;
+            });
+        } else {
+            repliesHTML += '<p style="text-align: center; color: #999;">暂无回复</p>';
         }
-
-        // 6. 保存回复
-        const { error: insertError } = await supabase
-            .from('replies')
-            .insert([{
-                post_id: postId,
-                parent_id: parent_id,
-                author: author,
-                content: content
-            }]);
-
-        if (insertError) {
-            alert('❌ 回复失败：' + insertError.message);
-            return;
-        }
-
-        // 7. 成功提示
-        alert('✅ 回复成功！\n\n作者：' + author + '\n内容：' + content);
-
+        
+        // 添加回复表单
+        repliesHTML += `
+            <div style="margin-top: 20px; padding-top: 20px; border-top: 2px solid #667eea;">
+                <h4>💌 添加回复</h4>
+                <input type="text" id="reply-author-${postId}" placeholder="你的昵称" style="width: 100%; padding: 10px; margin: 5px 0; border: 1px solid #ddd; border-radius: 5px;">
+                <textarea id="reply-content-${postId}" placeholder="回复内容..." style="width: 100%; padding: 10px; margin: 5px 0; border: 1px solid #ddd; border-radius: 5px; min-height: 80px;"></textarea>
+                <div style="display: flex; gap: 10px; margin-top: 10px;">
+                    <button onclick="publishReply(${postId})" style="flex: 1; padding: 10px; background: #667eea; color: white; border: none; border-radius: 5px; cursor: pointer;">发布回复</button>
+                    <button onclick="closeRepliesPopup()" style="padding: 10px 20px; background: #999; color: white; border: none; border-radius: 5px; cursor: pointer;">关闭</button>
+                </div>
+            </div>
+        `;
+        
+        repliesHTML += '</div>';
+        
+        // 添加遮罩层
+        repliesHTML += '<div class="overlay" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 999;"></div>';
+        
+        // 显示到页面
+        const popupContainer = document.createElement('div');
+        popupContainer.id = 'replies-popup-container';
+        popupContainer.innerHTML = repliesHTML;
+        document.body.appendChild(popupContainer);
+        
     } catch (error) {
-        console.error('回复错误:', error);
-        alert('❌ 发生错误，请重试');
+        console.error('错误:', error);
+        alert('加载回复失败！');
     }
 }
+
+// 发布回复函数
+async function publishReply(postId) {
+    const author = document.getElementById(`reply-author-${postId}`).value.trim();
+    const content = document.getElementById(`reply-content-${postId}`).value.trim();
+    
+    if (!author || !content) {
+        alert('请填写昵称和回复内容！');
+        return;
+    }
+    
+    try {
+        const { error } = await supabase
+            .from('replies')
+            .insert([{ 
+                post_id: postId, 
+                author: author, 
+                content: content 
+            }]);
+
+        if (error) throw error;
+        
+        alert('回复成功！');
+        closeRepliesPopup();
+        
+    } catch (error) {
+        console.error('回复错误:', error);
+        alert('回复失败！');
+    }
+}
+
+// 关闭回复弹窗
+function closeRepliesPopup() {
+    const popup = document.getElementById('replies-popup-container');
+    if (popup) {
+        popup.remove();
+    }
+}
+
+// 点击遮罩层关闭
+document.addEventListener('click', function(e) {
+    if (e.target.classList.contains('overlay')) {
+        closeRepliesPopup();
+    }
+});
         // ==================== 搜索功能 ====================
 
         // 监听输入框的输入事件（实时搜索）
