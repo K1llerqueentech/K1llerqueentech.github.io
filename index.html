@@ -520,8 +520,7 @@ let supabase;
     }
 }
            
-        async function replyToPost(postId, parentReplyId = null) {
-    // 获取所有回复（包括嵌套回复）
+        async function replyToPost(postId) {
     const { data: replies, error } = await supabase
         .from('replies')
         .select('*')
@@ -531,28 +530,24 @@ let supabase;
     if (error) throw error;
     
     let message = '=== 现有回复 ===\n\n';
-    let replyOptions = [];
     
     if (replies && replies.length > 0) {
         replies.forEach((reply, index) => {
             const prefix = reply.parent_id ? '  └─ ' : '';
-            message += `${index + 1}. ${prefix}${reply.author}：${reply.content}\n\n`;
-            replyOptions.push(reply);
+            const contentPreview = reply.content.length > 20 ? 
+                reply.content.substring(0, 20) + '...' : reply.content;
+            message += `${prefix}${reply.author}：${contentPreview}\n\n`;
         });
     } else {
         message += '暂无回复\n\n';
     }
     
     message += '=== 添加回复 ===\n\n';
-    message += '请选择回复对象：\n';
-    message += '0. 回复主帖子\n';
-    replyOptions.forEach((reply, index) => {
-        message += `${index + 1}. 回复 ${reply.author}\n`;
-    });
+    message += '输入要回复的用户名和内容片段（直接回车回复主帖子）\n';
+    message += '例如：张三 或者 张三你好...';
     
-    // 选择回复对象
-    const choice = prompt(message + '\n请输入序号：');
-    if (choice === null) return;
+    // 用户输入用户名+内容片段
+    const target = prompt(message);
     
     const author = prompt('请输入你的昵称：');
     if (!author) return;
@@ -562,14 +557,20 @@ let supabase;
     
     // 确定 parent_id
     let parent_id = null;
-    if (choice !== '0') {
-        const selectedIndex = parseInt(choice) - 1;
-        if (selectedIndex >= 0 && selectedIndex < replyOptions.length) {
-            parent_id = replyOptions[selectedIndex].id;
+    if (target) {
+        // 简单匹配：先按用户名，如果有多个再按内容片段
+        let targetReplies = replies.filter(reply => reply.author === target);
+        if (targetReplies.length > 1 && target.includes(' ')) {
+            const contentPart = target.split(' ')[1];
+            targetReplies = targetReplies.filter(reply => 
+                reply.content.includes(contentPart)
+            );
+        }
+        if (targetReplies.length > 0) {
+            parent_id = targetReplies[0].id;
         }
     }
     
-    // 保存回复
     const { error: insertError } = await supabase
         .from('replies')
         .insert([{ 
