@@ -521,33 +521,49 @@ let supabase;
 }
            
         async function replyToPost(postId) {
-    const author = prompt('请输入你的昵称：');
-    if (!author) return;
-    
-    const content = prompt('请输入回复内容：');
-    if (!content) return;
-    
+    // 先显示所有现有回复
     try {
-        const { data, error } = await supabase
+        const { data: replies, error } = await supabase
             .from('replies')
-            .insert([
-                {
-                    post_id: postId,
-                    author: author,
-                    content: content
-                }
-            ]);
-
+            .select('*')
+            .eq('post_id', postId)
+            .order('created_at', { ascending: true });
+            
         if (error) throw error;
+        
+        let message = '=== 现有回复 ===\n\n';
+        
+        if (replies && replies.length > 0) {
+            replies.forEach((reply, index) => {
+                message += `${reply.author}：${reply.content}\n\n`;
+            });
+        } else {
+            message += '暂无回复\n\n';
+        }
+        
+        message += '=== 添加新回复 ===';
+        
+        // 然后询问是否要回复
+        const author = prompt(message + '\n\n请输入你的昵称：');
+        if (!author) return;
+        
+        const content = prompt('请输入回复内容：');
+        if (!content) return;
+        
+        // 保存新回复
+        const { error: insertError } = await supabase
+            .from('replies')
+            .insert([{ post_id: postId, author, content }]);
+
+        if (insertError) throw insertError;
         
         alert('回复成功！');
         
     } catch (error) {
-        console.error('回复错误:', error);
-        alert('回复失败！');
+        console.error('错误:', error);
+        alert('操作失败！');
     }
 }
-
         // ==================== 搜索功能 ====================
 
         // 监听输入框的输入事件（实时搜索）
