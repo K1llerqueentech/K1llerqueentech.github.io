@@ -520,49 +520,68 @@ let supabase;
     }
 }
            
-        async function replyToPost(postId) {
-    // 先显示所有现有回复
-    try {
-        const { data: replies, error } = await supabase
-            .from('replies')
-            .select('*')
-            .eq('post_id', postId)
-            .order('created_at', { ascending: true });
-            
-        if (error) throw error;
+        async function replyToPost(postId, parentReplyId = null) {
+    // 获取所有回复（包括嵌套回复）
+    const { data: replies, error } = await supabase
+        .from('replies')
+        .select('*')
+        .eq('post_id', postId)
+        .order('created_at', { ascending: true });
         
-        let message = '=== 现有回复 ===\n\n';
-        
-        if (replies && replies.length > 0) {
-            replies.forEach((reply, index) => {
-                message += `${reply.author}：${reply.content}\n\n`;
-            });
-        } else {
-            message += '暂无回复\n\n';
-        }
-        
-        message += '=== 添加新回复 ===';
-        
-        // 然后询问是否要回复
-        const author = prompt(message + '\n\n请输入你的昵称：');
-        if (!author) return;
-        
-        const content = prompt('请输入回复内容：');
-        if (!content) return;
-        
-        // 保存新回复
-        const { error: insertError } = await supabase
-            .from('replies')
-            .insert([{ post_id: postId, author, content }]);
-
-        if (insertError) throw insertError;
-        
-        alert('回复成功！');
-        
-    } catch (error) {
-        console.error('错误:', error);
-        alert('操作失败！');
+    if (error) throw error;
+    
+    let message = '=== 现有回复 ===\n\n';
+    let replyOptions = [];
+    
+    if (replies && replies.length > 0) {
+        replies.forEach((reply, index) => {
+            const prefix = reply.parent_id ? '  └─ ' : '';
+            message += `${index + 1}. ${prefix}${reply.author}：${reply.content}\n\n`;
+            replyOptions.push(reply);
+        });
+    } else {
+        message += '暂无回复\n\n';
     }
+    
+    message += '=== 添加回复 ===\n\n';
+    message += '请选择回复对象：\n';
+    message += '0. 回复主帖子\n';
+    replyOptions.forEach((reply, index) => {
+        message += `${index + 1}. 回复 ${reply.author}\n`;
+    });
+    
+    // 选择回复对象
+    const choice = prompt(message + '\n请输入序号：');
+    if (choice === null) return;
+    
+    const author = prompt('请输入你的昵称：');
+    if (!author) return;
+    
+    const content = prompt('请输入回复内容：');
+    if (!content) return;
+    
+    // 确定 parent_id
+    let parent_id = null;
+    if (choice !== '0') {
+        const selectedIndex = parseInt(choice) - 1;
+        if (selectedIndex >= 0 && selectedIndex < replyOptions.length) {
+            parent_id = replyOptions[selectedIndex].id;
+        }
+    }
+    
+    // 保存回复
+    const { error: insertError } = await supabase
+        .from('replies')
+        .insert([{ 
+            post_id: postId, 
+            parent_id: parent_id,
+            author, 
+            content 
+        }]);
+
+    if (insertError) throw insertError;
+    
+    alert('回复成功！');
 }
         // ==================== 搜索功能 ====================
 
