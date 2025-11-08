@@ -313,8 +313,8 @@
     <script>
 let supabase;
     try {
-        const SUPABASE_URL = '你的URL';
-        const SUPABASE_ANON_KEY = '你的密钥';
+        const SUPABASE_URL = 'https://sojzrexhxicfugyuvsaa.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNvanpyZXhoeGljZnVneXV2c2FhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI1NzU0MTksImV4cCI6MjA3ODE1MTQxOX0.ZTm01JLRoakcQ3AnTOTQDUR5-Fu6l5TKtrlRSx6MUAE';
         supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         console.log('Supabase 初始化成功');
     } catch (error) {
