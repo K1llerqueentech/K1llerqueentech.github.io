@@ -482,33 +482,44 @@ let supabase;
         }
 
         async function likePost(postId) {
-            try {
-                // 先获取当前点赞数
-                const { data: post, error: fetchError } = await supabase
-                    .from('posts')
-                    .select('likes')
-                    .eq('id', postId)
-                    .single();
+            // 检查是否已经点赞过
+    const likedPosts = JSON.parse(localStorage.getItem('likedPosts')) || [];
+    if (likedPosts.includes(postId)) {
+        alert('你已经点过赞了！');
+        return;
+    }
 
-                if (fetchError) throw fetchError;
+    try {
+        // 先获取当前点赞数
+        const { data: post, error: fetchError } = await supabase
+            .from('posts')
+            .select('likes')
+            .eq('id', postId)
+            .single();
 
-                // 更新点赞数
-                const { error: updateError } = await supabase
-                    .from('posts')
-                    .update({ likes: post.likes + 1 })
-                    .eq('id', postId);
+        if (fetchError) throw fetchError;
 
-                if (updateError) throw updateError;
+        // 更新点赞数
+        const { error: updateError } = await supabase
+            .from('posts')
+            .update({ likes: post.likes + 1 })
+            .eq('id', postId);
 
-                // 重新加载帖子
-                await loadPosts(currentSortType);
-                
-            } catch (error) {
-                console.error('点赞错误:', error);
-                alert('点赞失败！');
-            }
-        }
+        if (updateError) throw updateError;
 
+        // 记录用户已点赞
+        likedPosts.push(postId);
+        localStorage.setItem('likedPosts', JSON.stringify(likedPosts));
+        
+        // 重新加载帖子
+        await loadPosts(currentSortType);
+        
+    } catch (error) {
+        console.error('点赞错误:', error);
+        alert('点赞失败！');
+    }
+}
+           
         function replyToPost(postId) {
             const replyContent = prompt('请输入你的回复：');
             if (replyContent) {
